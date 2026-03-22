@@ -18,6 +18,8 @@ public class StateMachine : MonoBehaviour
     // 各系统引用
     private MovementController movementController;
     private AnimationSystem animationSystem;
+
+    private Vector2 currentMoveInput = Vector2.zero;
     
 
     #region 初始化状态
@@ -55,6 +57,15 @@ public class StateMachine : MonoBehaviour
 
     }
     #endregion
+
+    #region 属性
+
+    public Vector2 GetCurrentMoveInput()
+    {
+        return currentMoveInput;
+    }
+
+    #endregion
     
     
     #region 生命周期
@@ -64,7 +75,7 @@ public class StateMachine : MonoBehaviour
         SubscribeToEvents();
         RegisterAllStates();
     }
-        public void Update()
+    public void Update()
     {
         if (currentState != null)
         {
@@ -79,6 +90,8 @@ public class StateMachine : MonoBehaviour
     private void SubscribeToEvents()
     {
         player.OnMoveInput += HandleMoveInput;
+
+        player.OnAttackInput += HandleAttackInput;
     }
     private void RegisterState(IState state)
     {
@@ -139,8 +152,17 @@ public class StateMachine : MonoBehaviour
     /// <param name="moveInput">移动输入向量</param>
     private void HandleMoveInput(Vector2 moveInput)
     {
+        currentMoveInput = moveInput;
         currentState.HandleMoveInput(moveInput);
     }
-
+    
+    /// <summary>
+    /// 处理攻击输入
+    /// </summary>
+    private void HandleAttackInput()
+    {
+        currentState.HandleAttackInput();
+    }
+    
     #endregion
 }

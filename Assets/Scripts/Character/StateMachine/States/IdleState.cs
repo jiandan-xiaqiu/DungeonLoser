@@ -54,12 +54,24 @@ public class IdleState : BaseState
             _stateMachine.ChangeState("Move");
         }
     }
-    
 
+    /// <summary>
+    /// 处理攻击输入
+    /// 当有攻击输入时，切换到攻击状态
+    /// </summary>
+    public override void HandleAttackInput()
+    {
+        base.HandleAttackInput();
+
+        // 如果有攻击输入，切换到攻击状态
+        _stateMachine.ChangeState("Attack");
+    }
+
+    #endregion
     public override bool CanTransitionTo(string stateName)
     {
         // 可以从空闲状态转换到移动、攻击或休息状态
         return stateName == "Move" || stateName == "Attack";
     }
-    #endregion
+    
 }

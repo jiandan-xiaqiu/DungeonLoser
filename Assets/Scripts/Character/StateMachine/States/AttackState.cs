@@ -17,47 +17,16 @@ public class AttackState : BaseState
 
     public override void Enter()
     {
-        // animator.SetTrigger("Attack");
-        // attackStartTime = Time.time;
-        // hasAttacked = false;
-        // Logger.Log.Log.Info(LogModules.PLAYER, "Entering Attack State", character);
+        
     }
 
     public override void Update()
     {
-        // 执行攻击逻辑
-        // if (!hasAttacked && Time.time - attackStartTime > 0.2f) // 攻击动画的攻击帧时间点
-        // {
-        //     character.PerformAttack();
-        //     hasAttacked = true;
-        // }
-
-        // // 检查攻击是否完成
-        // if (Time.time - attackStartTime >= attackDuration)
-        // {
-        //     // 根据移动输入决定切换到空闲或移动状态
-        //     Vector2 moveInput = character.InputActions.GamePlay.Move.ReadValue<Vector2>();
-        //     if (moveInput.magnitude > 0.1f)
-        //     {
-        //         if (character.InputActions.GamePlay.Run.ReadValue<float>() > 0.5f)
-        //         {
-        //             character.StateMachine.ChangeState(new RunState(character));
-        //         }
-        //         else
-        //         {
-        //             character.StateMachine.ChangeState(new MoveState(character));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         character.StateMachine.ChangeState(new IdleState(character));
-        //     }
-        // }
+        
     }
 
     public override void Exit()
     {
-        //Logger.Log.Log.Info(LogModules.PLAYER, "Exiting Attack State", character);
     }
 
     public override bool CanTransitionTo(string stateName)
@@ -65,5 +34,34 @@ public class AttackState : BaseState
         // 攻击状态只能在攻击完成后转换，所以这里返回false
         // 转换由状态内部逻辑控制
         return false;
+    }
+    public override void HandleMoveInput(Vector2 moveInput)
+    {
+        base.HandleMoveInput(moveInput);
+
+        // 如果没有移动输入，停止移动
+        if (moveInput.magnitude < 0.1f)
+        {
+            _movementController?.StopMovement();
+            return;
+        }
+
+        // 如果有移动输入，执行移动逻辑
+        if (moveInput.magnitude > 0.1f)
+        {
+            _movementController.Move(moveInput);
+        }
+
+    }
+        
+    /// <summary>
+    /// 处理普通攻击输入
+    /// 当有攻击输入时，切换到攻击状态
+    /// </summary>
+    public override void HandleAttackInput()
+    {
+        base.HandleAttackInput();
+
+        //调用攻击系统
     }
 }

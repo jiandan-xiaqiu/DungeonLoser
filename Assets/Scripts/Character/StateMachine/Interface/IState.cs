@@ -24,4 +24,9 @@ public interface IState
     /// </summary>
     /// <param name="moveInput">移动输入向量</param>
     void HandleMoveInput(Vector2 moveInput);
+    
+    /// <summary>
+    /// 处理攻击输入
+    /// </summary>
+    void HandleAttackInput();
 }

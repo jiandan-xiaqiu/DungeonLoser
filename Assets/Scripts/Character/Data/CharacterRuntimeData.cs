@@ -24,3 +24,12 @@ public class CharacterRuntimeData
         
     }
 }
+public class CharacterStats
+{
+    private CharacterRuntimeData _runtimeData;
+
+    public CharacterStats(CharacterRuntimeData runtimeData)
+    {
+        _runtimeData = runtimeData;
+    }
+}

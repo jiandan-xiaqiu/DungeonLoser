@@ -16,6 +16,7 @@ namespace MyGame.Character.Systems
         [SerializeField] private string moveXParam = "MoveX";
         [SerializeField] private string moveYParam = "MoveY";
         [SerializeField] private string isMovingParam = "IsMoving";
+        [SerializeField] private string isAttackParam = "IsAttack";
         
         [Header("组件引用")]
         [SerializeField] private Animator animator;

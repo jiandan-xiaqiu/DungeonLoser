@@ -35,6 +35,7 @@ public class BaseState : IState
 
     public virtual void Enter()
     {
+        //通过Handle切换的状态会消耗一次输入，缺少一次处理，需要状态机记录并在此补充处理
     }
 
     public virtual void Update()
@@ -61,4 +62,9 @@ public class BaseState : IState
     /// </summary>
     /// <param name="moveInput">移动输入向量</param>
     public virtual void HandleMoveInput(Vector2 moveInput) { }
+    
+    /// <summary>
+    /// 处理普通攻击输入
+    /// </summary>
+    public virtual void HandleAttackInput() { }
 }
