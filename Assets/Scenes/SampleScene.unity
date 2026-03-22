@@ -2567,6 +2567,7 @@ GameObject:
   - component: {fileID: 1265547168}
   - component: {fileID: 1265547171}
   - component: {fileID: 1265547172}
+  - component: {fileID: 1265547173}
   m_Layer: 0
   m_Name: Monster
   m_TagString: Untagged
@@ -2716,7 +2717,7 @@ Animator:
   m_GameObject: {fileID: 1265547166}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 1ad83ea9f2668f842a6c15926c1259e1, type: 2}
+  m_Controller: {fileID: 9100000, guid: 47cf4744293c56f4680928342c13fe75, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -2728,6 +2729,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1265547173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265547166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66ed09b5b2104af4b817c0472da3e04b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRange: 10
+  attackRange: 2
+  moveSpeed: 3
+  attackCooldown: 1
+  isMovingParam: IsMoving
+  attackTriggerParam: Attack
+  hitTriggerParam: Hit
+  deathTriggerParam: Death
+  animationSpeed: 1
 --- !u!1 &1376101268
 GameObject:
   m_ObjectHideFlags: 0
@@ -3055,7 +3077,7 @@ GameObject:
   - component: {fileID: 1843419668}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

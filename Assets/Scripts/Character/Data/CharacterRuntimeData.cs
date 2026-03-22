@@ -24,6 +24,9 @@ public class CharacterRuntimeData
         
     }
 }
+/// <summary>
+/// 角色统计数据
+/// </summary>
 public class CharacterStats
 {
     private CharacterRuntimeData _runtimeData;
