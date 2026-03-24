@@ -96,17 +96,36 @@ namespace MyGame.AI.BehaviorTree
                 return NodeStatus.Failure;
             }
 
-            Vector3 direction = (context.target.position - context.aiObject.transform.position).normalized;
-            float distance = Vector3.Distance(context.aiObject.transform.position, context.target.position);
+            // 只考虑X和Y轴
+            Vector2 direction = new Vector2(
+                context.target.position.x - context.aiObject.transform.position.x,
+                context.target.position.y - context.aiObject.transform.position.y
+            ).normalized;
+            
+            float distance = Vector2.Distance(
+                new Vector2(context.aiObject.transform.position.x, context.aiObject.transform.position.y),
+                new Vector2(context.target.position.x, context.target.position.y)
+            );
 
             if (distance > context.attackRange)
             {
-                context.aiObject.transform.position += direction * context.moveSpeed * Time.deltaTime;
+                // 只修改X和Y轴，锁定Z轴
+                Vector3 newPosition = context.aiObject.transform.position;
+                newPosition.x += direction.x * context.moveSpeed * Time.deltaTime;
+                newPosition.y += direction.y * context.moveSpeed * Time.deltaTime;
+                newPosition.z = 0f; // 锁定Z轴
+                context.aiObject.transform.position = newPosition;
+                
                 context.currentState = AIState.Moving;
                 return NodeStatus.Running;
             }
             else
             {
+                // 确保Z轴为0
+                Vector3 position = context.aiObject.transform.position;
+                position.z = 0f;
+                context.aiObject.transform.position = position;
+                
                 context.currentState = AIState.Idle;
                 return NodeStatus.Success;
             }
