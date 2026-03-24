@@ -172,6 +172,14 @@ namespace MyGame.AI
         public void OnDeath()
         {
             _context.currentState = AIState.Dead;
+            
+            // 立即处理死亡状态变化，确保死亡动画被触发
+            if (_context.currentState != _lastState)
+            {
+                _lastState = _context.currentState;
+                HandleStateChange(_context.currentState);
+            }
+            
             enabled = false; // 禁用AI更新
         }
     }

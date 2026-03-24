@@ -72,8 +72,8 @@ namespace MyGame.Character.Systems
             lastMoveInput = moveInput;
             
             // 设置移动方向和速度
-            SetAnimatorFloat(moveXParam, moveInput.x);
-            SetAnimatorFloat(moveYParam, moveInput.y);
+            // SetAnimatorFloat(moveXParam, moveInput.x);
+            // SetAnimatorFloat(moveYParam, moveInput.y);
             
             // 使用实际速度或输入大小
             float speed = movementController != null ? 
