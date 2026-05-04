@@ -10,11 +10,18 @@ namespace SimpleOrbital
     {
         [Header("掉落设置")]
         [SerializeField] private float dropChance = 0.7f; // 掉落概率
-        [SerializeField] private float weaponDropChance = 0.3f; // 武器掉落概率
-        [SerializeField] private float weaponUpgradeChance = 0.2f; // 武器升级概率
+        [SerializeField] private float weaponDropChance = 0f; // 武器掉落概率
+        [SerializeField] private float weaponUpgradeChance = 0f; // 武器升级概率
+        [SerializeField] private float goldDropChance = 0.4f; // 金币掉落概率
+        [SerializeField] private float healthDropChance = 0.15f; // 回血道具掉落概率
+        [SerializeField] private float shieldDropChance = 0.1f; // 护盾道具掉落概率
         [SerializeField] private float itemDropForce = 5f; // 掉落力度
-        [SerializeField] private float pickupRange = 1f; // 拾取范围
-        [SerializeField] private float attractSpeed = 5f; // 吸引速度
+        
+        [Header("道具预制体")]
+        [SerializeField] private GameObject weaponPickupPrefab; // 武器拾取预制体
+        [SerializeField] private GameObject goldPickupPrefab; // 金币拾取预制体
+        [SerializeField] private GameObject healthPickupPrefab; // 回血道具拾取预制体
+        [SerializeField] private GameObject shieldPickupPrefab; // 护盾道具拾取预制体
         
         // 系统引用
         private WeaponOrbitalSystem weaponSystem;
@@ -55,14 +62,41 @@ namespace SimpleOrbital
             {
                 // 决定掉落类型
                 float rand = Random.value;
+                float cumulativeChance = 0f;
                 
-                if (rand <= weaponDropChance && possibleWeapons.Count > 0)
+                cumulativeChance += weaponDropChance;
+                if (rand <= cumulativeChance && possibleWeapons.Count > 0)
                 {
                     DropWeapon(enemy.transform.position);
+                    return;
                 }
-                else if (rand <= weaponDropChance + weaponUpgradeChance && weaponSystem != null)
+                
+                cumulativeChance += weaponUpgradeChance;
+                if (rand <= cumulativeChance && weaponSystem != null)
                 {
                     UpgradeExistingWeapon();
+                    return;
+                }
+                
+                cumulativeChance += goldDropChance;
+                if (rand <= cumulativeChance)
+                {
+                    DropGold(enemy.transform.position);
+                    return;
+                }
+                
+                cumulativeChance += healthDropChance;
+                if (rand <= cumulativeChance)
+                {
+                    DropHealthPotion(enemy.transform.position);
+                    return;
+                }
+                
+                cumulativeChance += shieldDropChance;
+                if (rand <= cumulativeChance)
+                {
+                    DropShieldPotion(enemy.transform.position);
+                    return;
                 }
             }
         }
@@ -81,6 +115,33 @@ namespace SimpleOrbital
             
             // 创建武器掉落物品
             CreateWeaponPickup(weapon, position);
+        }
+        
+        /// <summary>
+        /// 掉落金币
+        /// </summary>
+        /// <param name="position">掉落位置</param>
+        private void DropGold(Vector3 position)
+        {
+            CreateGoldPickup(position);
+        }
+
+        /// <summary>
+        /// 掉落回血道具
+        /// </summary>
+        /// <param name="position">掉落位置</param>
+        private void DropHealthPotion(Vector3 position)
+        {
+            CreateHealthPickup(position);
+        }
+
+        /// <summary>
+        /// 掉落护盾道具
+        /// </summary>
+        /// <param name="position">掉落位置</param>
+        private void DropShieldPotion(Vector3 position)
+        {
+            CreateShieldPickup(position);
         }
         
         /// <summary>
@@ -108,32 +169,78 @@ namespace SimpleOrbital
         /// <param name="position">生成位置</param>
         private void CreateWeaponPickup(Weapon weapon, Vector3 position)
         {
-            // 创建拾取物品
-            GameObject pickup = new GameObject("Weapon Pickup: " + weapon.weaponName);
-            pickup.transform.position = position;
-            
-            // 添加碰撞器
-            CircleCollider2D collider = pickup.AddComponent<CircleCollider2D>();
-            collider.radius = 0.5f;
-            collider.isTrigger = true;
-            
-            // 添加刚体
-            Rigidbody2D rb = pickup.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 0f;
-            
-            // 应用掉落力
-            Vector2 force = new Vector2(
-                Random.Range(-1f, 1f),
-                Random.Range(0.5f, 1f)
-            ) * itemDropForce;
-            rb.AddForce(force, ForceMode2D.Impulse);
-            
-            // 添加拾取组件
-            WeaponPickup weaponPickup = pickup.AddComponent<WeaponPickup>();
-            weaponPickup.weapon = weapon;
-            weaponPickup.pickupRange = pickupRange;
-            weaponPickup.attractSpeed = attractSpeed;
-            weaponPickup.weaponSystem = weaponSystem;
+            if (weaponPickupPrefab != null)
+            {
+                GameObject pickup = Instantiate(weaponPickupPrefab, position, Quaternion.identity);
+                pickup.name = "Weapon Pickup: " + weapon.weaponName;
+
+                var weaponPickup = pickup.GetComponent("WeaponPickup");
+                if (weaponPickup != null)
+                {
+                    var weaponField = weaponPickup.GetType().GetField("weapon");
+                    if (weaponField != null) weaponField.SetValue(weaponPickup, weapon);
+                }
+
+                ApplyDropForce(pickup);
+            }
+        }
+
+        /// <summary>
+        /// 创建金币拾取物品
+        /// </summary>
+        /// <param name="position">生成位置</param>
+        private void CreateGoldPickup(Vector3 position)
+        {
+            if (goldPickupPrefab != null)
+            {
+                GameObject pickup = Instantiate(goldPickupPrefab, position, Quaternion.identity);
+                pickup.name = "Gold Pickup";
+                ApplyDropForce(pickup);
+            }
+        }
+
+        /// <summary>
+        /// 创建回血道具拾取物品
+        /// </summary>
+        /// <param name="position">生成位置</param>
+        private void CreateHealthPickup(Vector3 position)
+        {
+            if (healthPickupPrefab != null)
+            {
+                GameObject pickup = Instantiate(healthPickupPrefab, position, Quaternion.identity);
+                pickup.name = "Health Pickup";
+                ApplyDropForce(pickup);
+            }
+        }
+
+        /// <summary>
+        /// 创建护盾道具拾取物品
+        /// </summary>
+        /// <param name="position">生成位置</param>
+        private void CreateShieldPickup(Vector3 position)
+        {
+            if (shieldPickupPrefab != null)
+            {
+                GameObject pickup = Instantiate(shieldPickupPrefab, position, Quaternion.identity);
+                pickup.name = "Shield Pickup";
+                ApplyDropForce(pickup);
+            }
+        }
+
+        /// <summary>
+        /// 应用掉落力
+        /// </summary>
+        private void ApplyDropForce(GameObject pickup)
+        {
+            Rigidbody2D rb = pickup.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                Vector2 force = new Vector2(
+                    Random.Range(-1f, 1f),
+                    Random.Range(0.5f, 1f)
+                ) * itemDropForce;
+                rb.AddForce(force, ForceMode2D.Impulse);
+            }
         }
         #endregion
         
@@ -159,77 +266,5 @@ namespace SimpleOrbital
             }
         }
         #endregion
-    }
-    
-    /// <summary>
-    /// 武器拾取组件
-    /// </summary>
-    public class WeaponPickup : MonoBehaviour
-    {
-        public Weapon weapon;
-        public float pickupRange = 1f;
-        public float attractSpeed = 5f;
-        public WeaponOrbitalSystem weaponSystem;
-        
-        private Transform playerTransform;
-        private bool isAttracting = false;
-        
-        private void Update()
-        {
-            if (playerTransform == null)
-            {
-                FindPlayer();
-                return;
-            }
-            
-            // 检查是否在拾取范围内
-            float distance = Vector3.Distance(transform.position, playerTransform.position);
-            
-            if (distance <= pickupRange)
-            {
-                isAttracting = true;
-            }
-            
-            if (isAttracting)
-            {
-                // 吸引到玩家
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    playerTransform.position,
-                    attractSpeed * Time.deltaTime
-                );
-                
-                // 到达玩家
-                if (Vector3.Distance(transform.position, playerTransform.position) < 0.1f)
-                {
-                    Pickup();
-                }
-            }
-        }
-        
-        /// <summary>
-        /// 寻找玩家
-        /// </summary>
-        private void FindPlayer()
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null)
-            {
-                playerTransform = player.transform;
-            }
-        }
-        
-        /// <summary>
-        /// 拾取武器
-        /// </summary>
-        private void Pickup()
-        {
-            if (weapon != null && weaponSystem != null)
-            {
-                weaponSystem.AddWeapon(weapon);
-            }
-            
-            Destroy(gameObject);
-        }
     }
 }

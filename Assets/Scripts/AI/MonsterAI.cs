@@ -21,6 +21,9 @@ namespace MyGame.AI
         [Tooltip("攻击冷却时间")]
         public float attackCooldown = 1f;
 
+        [Tooltip("攻击伤害")]
+        public float attackDamage = 10f;
+
         [Header("Animation Settings")]
         [Tooltip("动画参数名称")]
         public string isMovingParam = "IsMoving";
@@ -57,6 +60,7 @@ namespace MyGame.AI
                 attackRange = attackRange,
                 moveSpeed = moveSpeed,
                 attackCooldown = attackCooldown,
+                attackDamage = attackDamage,
                 lastAttackTime = 0f,
                 currentState = AIState.Idle,
                 previousState = AIState.Idle

@@ -38,9 +38,10 @@ namespace MyGame.AI.BehaviorTree
         public GameObject aiObject;          // AI对象
         public Transform target;             // 目标（通常是玩家）
         public float detectionRange;         // 检测范围
-        public float attackRange;            // 攻击范围
-        public float moveSpeed;              // 移动速度
+        public float attackRange;           // 攻击范围
+        public float moveSpeed;             // 移动速度
         public float attackCooldown;         // 攻击冷却时间
+        public float attackDamage;           // 攻击伤害
         public float lastAttackTime;         // 上次攻击时间
         public AIState currentState;         // 当前AI状态
         public AIState previousState;       // 上一个AI状态

@@ -15,6 +15,7 @@ public class SimpleEnemySpawner : MonoBehaviour
     
     [Header("系统引用")]
     [SerializeField] private GameObject player; // 玩家引用
+    [SerializeField] private ItemDropSystem itemDropSystem; // 物品掉落系统
     
     private int currentEnemyCount = 0;
     private float spawnTimer = 0f;
@@ -76,6 +77,12 @@ public class SimpleEnemySpawner : MonoBehaviour
         if (enemy != null)
         {
             currentEnemyCount++;
+            
+            // 注册物品掉落
+            if (itemDropSystem != null)
+            {
+                itemDropSystem.RegisterEnemy(enemy);
+            }
             
             // 添加死亡监听
             EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();

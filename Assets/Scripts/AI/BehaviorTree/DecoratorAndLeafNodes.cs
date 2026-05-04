@@ -1,4 +1,5 @@
 using UnityEngine;
+using MyGame;
 
 namespace MyGame.AI.BehaviorTree
 {
@@ -155,13 +156,30 @@ namespace MyGame.AI.BehaviorTree
                 return NodeStatus.Running;
             }
 
-            // 执行攻击逻辑
+            // 执行攻击逻辑 - 伤害结算
             context.lastAttackTime = Time.time;
             context.currentState = AIState.Attacking;
             
-            // 这里可以添加具体的攻击代码，比如播放攻击动画、造成伤害等
+            // 对目标造成伤害
+            DealDamageToTarget(context);
             
             return NodeStatus.Success;
+        }
+        
+        /// <summary>
+        /// 对目标造成伤害
+        /// </summary>
+        private void DealDamageToTarget(AIContext context)
+        {
+            if (context.target == null || context.attackDamage <= 0f)
+                return;
+            
+            // 从目标身上获取 CharacterManager 并造成伤害
+            CharacterManager targetStats = context.target.GetComponent<CharacterManager>();
+            if (targetStats != null)
+            {
+                targetStats.TakeDamage(context.attackDamage);
+            }
         }
     }
 
