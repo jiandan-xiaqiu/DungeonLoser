@@ -9,12 +9,23 @@ public class PlayerInfoPanel : MonoBehaviour
     [SerializeField] private Text healthText;
     [SerializeField] private Slider shieldSlider;
     [SerializeField] private Text shieldText;
+    [SerializeField] private Button pauseButton;
 
     private CharacterManager characterManager;
 
     private void Awake()
     {
         characterManager = CharacterManager.Instance;
+        
+        if (pauseButton != null)
+        {
+            pauseButton.onClick.AddListener(OnPauseClicked);
+        }
+    }
+
+    private void OnPauseClicked()
+    {
+        MyGame.UI.UIManager.Instance?.OpenPausePanel();
     }
 
     private void Start()
