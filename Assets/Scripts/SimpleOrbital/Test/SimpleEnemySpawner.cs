@@ -16,6 +16,10 @@ namespace SimpleOrbital
         [Header("备用敌人预制体（当轮次配置没有指定时使用）")]
         [SerializeField] private GameObject defaultEnemyPrefab;
 
+        [Header("生成区域设置")]
+        [SerializeField] private Vector2 spawnAreaCenter = new Vector2(0f, 0f);
+        [SerializeField] private Vector2 spawnAreaSize = new Vector2(10f, 8f);
+
         private float _spawnTimer = 0f;
 
         #region 初始化
@@ -160,16 +164,10 @@ namespace SimpleOrbital
         /// </summary>
         private Vector3 GetRandomSpawnPosition(WaveConfig config)
         {
-            float radius = config != null ? config.spawnRadius : 3f;
-            float minDist = config != null ? config.spawnAreaMin : 1f;
+            float x = Random.Range(spawnAreaCenter.x - spawnAreaSize.x * 0.5f, spawnAreaCenter.x + spawnAreaSize.x * 0.5f);
+            float y = Random.Range(spawnAreaCenter.y - spawnAreaSize.y * 0.5f, spawnAreaCenter.y + spawnAreaSize.y * 0.5f);
 
-            float angle = Random.Range(0f, Mathf.PI * 2f);
-            float distance = Random.Range(minDist, radius);
-
-            float x = Mathf.Cos(angle) * distance;
-            float y = Mathf.Sin(angle) * distance;
-
-            return player.transform.position + new Vector3(x, y, -2f);
+            return new Vector3(x, y, -2f);
         }
 
         #region 事件处理

@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyGame;
 using MyGame.Character.Effect;
+using SimpleOrbital;
 
 public class CharacterManager : Singleton<CharacterManager>
 {
     #region 字段
     private CharacterRuntimeData _characterRuntimeData;
+    
+    [Header("系统引用")]
+    [SerializeField] private WeaponOrbitalSystem weaponOrbitalSystem;
     #endregion
     
     #region 属性
@@ -21,6 +25,7 @@ public class CharacterManager : Singleton<CharacterManager>
     public float ShieldAmount { get { return _characterRuntimeData.ShieldAmount; } }
     public float ShieldMaxAmount { get { return _characterRuntimeData.ShieldMaxAmount; } }
     public float ShieldRemainingTime { get { return _characterRuntimeData.ShieldRemainingTime; } }
+    public float ShieldBonusAmount { get { return _characterRuntimeData.ShieldBonusAmount; } }
     #endregion
     
     /// <summary>
@@ -149,11 +154,36 @@ public class CharacterManager : Singleton<CharacterManager>
     /// <param name="duration">持续时间（秒）</param>
     public void AddShield(float amount, float duration)
     {
-        // 设置护盾最大值和当前值
-        _characterRuntimeData.ShieldAmount = amount;
-        _characterRuntimeData.ShieldMaxAmount = amount;
+        // 设置护盾最大值和当前值（加上额外获取量）
+        float totalAmount = amount + _characterRuntimeData.ShieldBonusAmount;
+        _characterRuntimeData.ShieldAmount = totalAmount;
+        _characterRuntimeData.ShieldMaxAmount = totalAmount;
         _characterRuntimeData.ShieldDuration = duration;
         _characterRuntimeData.ShieldRemainingTime = duration;
+    }
+    
+    /// <summary>
+    /// 增加武器数量
+    /// </summary>
+    public void IncreaseWeaponCount()
+    {
+        if (weaponOrbitalSystem != null)
+        {
+            weaponOrbitalSystem.AddWeaponCopy();
+        }
+        else
+        {
+            Debug.LogWarning("WeaponOrbitalSystem 未设置，无法增加武器数量");
+        }
+    }
+    
+    /// <summary>
+    /// 增加护盾额外获取量
+    /// </summary>
+    /// <param name="amount">增加量</param>
+    public void IncreaseShieldBonus(float amount)
+    {
+        _characterRuntimeData.ShieldBonusAmount += amount;
     }
     #endregion
 

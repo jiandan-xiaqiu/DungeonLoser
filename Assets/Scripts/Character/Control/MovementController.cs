@@ -12,7 +12,7 @@ namespace MyGame.Character.Control
     public class MovementController : MonoBehaviour
     {
         [Header("移动设置")]
-        [SerializeField] private float moveSpeed = 5f;
+        [SerializeField] private float baseMoveSpeed = 5f;
         [SerializeField] private float acceleration = 10f;
         [SerializeField] private float deceleration = 10f;
         [SerializeField] private bool flipSpriteByDirection = true;
@@ -24,6 +24,22 @@ namespace MyGame.Character.Control
         private Vector2 targetVelocity = Vector2.zero;
         private Vector2 currentVelocity = Vector2.zero;
         private bool isMovementEnabled = true;
+        
+        /// <summary>
+        /// 获取当前移动速度（从 CharacterManager 获取）
+        /// </summary>
+        private float CurrentMoveSpeed
+        {
+            get
+            {
+                CharacterManager characterManager = CharacterManager.Instance;
+                if (characterManager != null)
+                {
+                    return characterManager.MoveSpeed;
+                }
+                return baseMoveSpeed;
+            }
+        }
         
         void Awake()
         {
@@ -49,8 +65,8 @@ namespace MyGame.Character.Control
         {
             if (!isMovementEnabled) return;
             
-            // 设置目标速度
-            targetVelocity = direction * moveSpeed;
+            // 设置目标速度（从 CharacterManager 获取当前速度）
+            targetVelocity = direction * CurrentMoveSpeed;
             
             // 更新面向方向
             UpdateFacingDirection(direction);
@@ -124,20 +140,5 @@ namespace MyGame.Character.Control
             return currentVelocity;
         }
         
-        /// <summary>
-        /// 获取移动速度
-        /// </summary>
-        public float GetMoveSpeed()
-        {
-            return moveSpeed;
-        }
-        
-        /// <summary>
-        /// 设置移动速度
-        /// </summary>
-        public void SetMoveSpeed(float speed)
-        {
-            moveSpeed = Mathf.Max(0, speed);
-        }
     }
 }

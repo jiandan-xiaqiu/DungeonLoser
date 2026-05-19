@@ -22,6 +22,7 @@ public class CharacterRuntimeData
     public float ShieldMaxAmount;   // 护盾最大值
     public float ShieldDuration;    // 护盾持续时间（秒）
     public float ShieldRemainingTime; // 护盾剩余时间
+    public float ShieldBonusAmount; // 护盾额外获取量
     
     /// <summary>
     /// 初始化角色运行时数据
@@ -38,5 +39,6 @@ public class CharacterRuntimeData
         ShieldMaxAmount = 0f;     // 默认无护盾上限
         ShieldDuration = 0f;      // 默认无持续时间
         ShieldRemainingTime = 0f; // 默认无剩余时间
+        ShieldBonusAmount = 0f;   // 默认护盾额外获取量
     }
 }

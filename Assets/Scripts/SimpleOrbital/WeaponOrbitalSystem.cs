@@ -61,10 +61,6 @@ namespace SimpleOrbital
             Weapon newWeapon = new Weapon();
             CopyWeaponData(weapon, newWeapon);
             
-            // 计算初始角度
-            float angleStep = 360f / (weapons.Count + 1);
-            newWeapon.currentAngle = weapons.Count * angleStep;
-            
             // 创建武器实例
             if (weapon.weaponPrefab != null)
             {
@@ -73,6 +69,9 @@ namespace SimpleOrbital
             }
             
             weapons.Add(newWeapon);
+            
+            // 重新分配所有武器位置，确保均匀分布
+            RedistributeWeapons();
         }
         
         /// <summary>
@@ -127,6 +126,32 @@ namespace SimpleOrbital
         }
         
         /// <summary>
+        /// 复制现有武器（增加武器数量）
+        /// </summary>
+        public void AddWeaponCopy()
+        {
+            if (weapons.Count == 0)
+                return;
+            
+            // 复制第一个武器
+            Weapon sourceWeapon = weapons[0];
+            Weapon newWeapon = new Weapon();
+            CopyWeaponData(sourceWeapon, newWeapon);
+            
+            // 创建武器实例
+            if (sourceWeapon.weaponPrefab != null)
+            {
+                newWeapon.weaponInstance = Instantiate(sourceWeapon.weaponPrefab, characterTransform.position, Quaternion.identity);
+                newWeapon.weaponInstance.transform.SetParent(transform);
+            }
+            
+            weapons.Add(newWeapon);
+            
+            // 重新分配所有武器位置，确保均匀分布
+            RedistributeWeapons();
+        }
+        
+        /// <summary>
         /// 复制武器数据
         /// </summary>
         /// <param name="source">源武器</param>
@@ -140,6 +165,21 @@ namespace SimpleOrbital
             target.orbitRadius = source.orbitRadius;
             target.orbitSpeed = source.orbitSpeed;
         }
+        
+        /// <summary>
+        /// 重新分配武器位置，确保均匀分布
+        /// </summary>
+        private void RedistributeWeapons()
+        {
+            if (weapons.Count == 0)
+                return;
+            
+            float angleStep = 360f / weapons.Count;
+            for (int i = 0; i < weapons.Count; i++)
+            {
+                weapons[i].currentAngle = i * angleStep;
+            }
+        }
         #endregion
         
         #region 武器更新
@@ -148,9 +188,17 @@ namespace SimpleOrbital
         /// </summary>
         private void UpdateWeapons()
         {
+            // 获取当前攻击速度（从 CharacterManager 获取）
+            float attackSpeed = 1f;
+            CharacterManager characterManager = CharacterManager.Instance;
+            if (characterManager != null)
+            {
+                attackSpeed = characterManager.AttackSpeed;
+            }
+            
             for (int i = 0; i < weapons.Count; i++)
             {
-                UpdateWeaponPosition(weapons[i], i);
+                UpdateWeaponPosition(weapons[i], i, attackSpeed);
                 UpdateWeaponRotation(weapons[i]);
             }
         }
@@ -160,13 +208,14 @@ namespace SimpleOrbital
         /// </summary>
         /// <param name="weapon">武器</param>
         /// <param name="index">武器索引</param>
-        private void UpdateWeaponPosition(Weapon weapon, int index)
+        /// <param name="attackSpeed">攻击速度倍数</param>
+        private void UpdateWeaponPosition(Weapon weapon, int index, float attackSpeed)
         {
             if (weapon == null || characterTransform == null)
                 return;
             
-            // 更新角度
-            weapon.currentAngle += weapon.orbitSpeed * Time.deltaTime * 360f;
+            // 更新角度（乘以攻击速度倍数）
+            weapon.currentAngle += weapon.orbitSpeed * attackSpeed * Time.deltaTime * 360f;
             if (weapon.currentAngle >= 360f)
             {
                 weapon.currentAngle -= 360f;

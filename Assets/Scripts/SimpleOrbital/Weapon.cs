@@ -30,7 +30,7 @@ namespace SimpleOrbital
         /// <returns>是否可以攻击</returns>
         public bool CanAttack()
         {
-            return Time.time - lastAttackTime >= 0.5f; // 简单的攻击间隔
+            return Time.time - lastAttackTime >= 0.1f; // 简单的攻击间隔
         }
         
         /// <summary>
