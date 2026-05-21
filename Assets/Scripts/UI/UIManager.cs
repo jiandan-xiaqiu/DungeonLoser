@@ -1,5 +1,6 @@
 using UnityEngine;
 using MyGame.WaveSystem;
+using SimpleOrbital.UI;
 
 namespace MyGame.UI
 {
@@ -13,9 +14,19 @@ namespace MyGame.UI
         [SerializeField] private WaveConfirmPanel waveConfirmPanel;
         [SerializeField] private UpgradePanel upgradePanel;
         [SerializeField] private PausePanel pausePanel;
+        [SerializeField] private GameObject gameOverPanel;
+        
+        [Header("系统引用")]
+        [SerializeField] private HealthBarManager healthBarManager;
 
         private void Start()
         {
+            // 获取血条管理器
+            if (healthBarManager == null)
+            {
+                healthBarManager = HealthBarManager.Instance;
+            }
+
             // 注册事件
             WaveManager waveManager = WaveManager.Instance;
             if (waveManager != null)
@@ -26,11 +37,19 @@ namespace MyGame.UI
                 waveManager.OnGameResumed += OnGameResumed;
             }
 
+            // 注册角色死亡事件
+            CharacterManager characterManager = CharacterManager.Instance;
+            if (characterManager != null)
+            {
+                characterManager.OnCharacterDeath += OnCharacterDeath;
+            }
+
             // 初始化面板状态
             ShowPlayerInfoPanel(true);
             ShowWaveConfirmPanel(false);
             ShowUpgradePanel(false);
             ShowPausePanel(false);
+            ShowGameOverPanel(false);
         }
 
         private void OnDestroy()
@@ -42,6 +61,45 @@ namespace MyGame.UI
                 waveManager.OnWaveStarted -= OnWaveStarted;
                 waveManager.OnGamePaused -= OnGamePaused;
                 waveManager.OnGameResumed -= OnGameResumed;
+            }
+
+            // 注销角色死亡事件
+            CharacterManager characterManager = CharacterManager.Instance;
+            if (characterManager != null)
+            {
+                characterManager.OnCharacterDeath -= OnCharacterDeath;
+            }
+        }
+
+        /// <summary>
+        /// 角色死亡回调
+        /// </summary>
+        private void OnCharacterDeath()
+        {
+            Debug.Log("角色死亡，触发游戏结束逻辑");
+            
+            // 结束当前波次
+            WaveManager waveManager = WaveManager.Instance;
+            if (waveManager != null)
+            {
+                waveManager.EndWave();
+            }
+            
+            // 清空所有血条
+            ClearAllHealthBars();
+            
+            // 打开游戏结束面板
+            ShowGameOverPanel(true);
+        }
+        
+        /// <summary>
+        /// 清空所有血条
+        /// </summary>
+        public void ClearAllHealthBars()
+        {
+            if (healthBarManager != null)
+            {
+                healthBarManager.ClearAllHealthBars();
             }
         }
 
@@ -113,6 +171,19 @@ namespace MyGame.UI
             if (pausePanel != null)
             {
                 pausePanel.gameObject.SetActive(show);
+            }
+        }
+        
+        public void ShowGameOverPanel(bool show)
+        {
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(show);
+                // 游戏结束时暂停时间
+                if (show)
+                {
+                    Time.timeScale = 0f;
+                }
             }
         }
         #endregion

@@ -149,6 +149,21 @@ namespace SimpleOrbital.UI
                 healthBar.Hide();
             }
         }
+        
+        /// <summary>
+        /// 清空所有血条
+        /// </summary>
+        public void ClearAllHealthBars()
+        {
+            foreach (var pair in healthBars)
+            {
+                if (pair.Value != null)
+                {
+                    Destroy(pair.Value.gameObject);
+                }
+            }
+            healthBars.Clear();
+        }
         #endregion
     }
 }

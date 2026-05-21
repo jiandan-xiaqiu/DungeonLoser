@@ -118,7 +118,6 @@ public class StateMachine : MonoBehaviour
             currentState.Exit();
         }
         currentState = states[stateName];
-        Debug.Log($"切换到状态 {stateName}");
         currentState.Enter();
         
     }

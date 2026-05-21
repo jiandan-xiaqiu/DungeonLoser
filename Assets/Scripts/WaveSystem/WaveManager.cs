@@ -142,8 +142,11 @@ namespace MyGame.WaveSystem
         /// <summary>
         /// 结束当前轮次
         /// </summary>
-        private void EndWave()
+        public void EndWave()
         {
+            if (!_isWaveActive)
+                return;
+                
             _isWaveActive = false;
             int completedWave = _currentWaveIndex + 1;
             OnWaveEnded?.Invoke(completedWave);
@@ -242,6 +245,14 @@ namespace MyGame.WaveSystem
             _isWaveActive = false;
             _isPaused = false;
             Time.timeScale = 1f;
+            
+            foreach (var enemy in _activeEnemies)
+            {
+                if (enemy != null)
+                {
+                    Destroy(enemy);
+                }
+            }
             _activeEnemies.Clear();
         }
 

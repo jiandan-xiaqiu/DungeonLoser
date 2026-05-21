@@ -4,6 +4,7 @@ using UnityEngine;
 using MyGame;
 using MyGame.Character.Effect;
 using SimpleOrbital;
+using System;
 
 public class CharacterManager : Singleton<CharacterManager>
 {
@@ -14,10 +15,25 @@ public class CharacterManager : Singleton<CharacterManager>
     [SerializeField] private WeaponOrbitalSystem weaponOrbitalSystem;
     #endregion
     
+    #region 事件
+    public event Action OnCharacterDeath;
+    #endregion
+    
     #region 属性
     public float MoveSpeed { get { return _characterRuntimeData.MoveSpeed; } set { _characterRuntimeData.MoveSpeed = value; } }
     public float HpMax { get { return _characterRuntimeData.HpMax; } set { _characterRuntimeData.HpMax = value; } }
-    public float CurrentHP { get { return _characterRuntimeData.CurrentHP; } set { _characterRuntimeData.CurrentHP = Mathf.Clamp(value, 0, _characterRuntimeData.HpMax); } }
+    public float CurrentHP
+    {
+        get { return _characterRuntimeData.CurrentHP; }
+        set
+        {
+            _characterRuntimeData.CurrentHP = Mathf.Clamp(value, 0, _characterRuntimeData.HpMax);
+            if (_characterRuntimeData.CurrentHP <= 0f)
+            {
+                OnDeath();
+            }
+        }
+    }
     public int Gold { get { return _characterRuntimeData.Gold; } set { _characterRuntimeData.Gold = value; } }
     public float AttackSpeed { get { return _characterRuntimeData.AttackSpeed; } set { _characterRuntimeData.AttackSpeed = value; } }
     
@@ -26,6 +42,9 @@ public class CharacterManager : Singleton<CharacterManager>
     public float ShieldMaxAmount { get { return _characterRuntimeData.ShieldMaxAmount; } }
     public float ShieldRemainingTime { get { return _characterRuntimeData.ShieldRemainingTime; } }
     public float ShieldBonusAmount { get { return _characterRuntimeData.ShieldBonusAmount; } }
+    
+    // 是否死亡
+    public bool IsDead { get { return _characterRuntimeData.CurrentHP <= 0f; } }
     #endregion
     
     /// <summary>
@@ -77,35 +96,44 @@ public class CharacterManager : Singleton<CharacterManager>
     }
     
     /// <summary>
-    /// 受到伤害（护盾优先抵挡）
-    /// </summary>
-    /// <param name="damage">伤害值</param>
-    public void TakeDamage(float damage)
-    {
-        // 如果有护盾，先消耗护盾
-        if (_characterRuntimeData.ShieldAmount > 0f)
+        /// 受到伤害（护盾优先抵挡）
+        /// </summary>
+        /// <param name="damage">伤害值</param>
+        public void TakeDamage(float damage)
         {
-            // 护盾完全抵挡伤害（可以抵挡溢出伤害）
-            _characterRuntimeData.ShieldAmount -= damage;
+            if (IsDead)
+                return;
 
-            // 触发护盾闪烁效果
-            TriggerShieldFlash();
-
-            // 如果护盾被耗尽，重置护盾状态
-            if (_characterRuntimeData.ShieldAmount <= 0f)
+            if (_characterRuntimeData.ShieldAmount > 0f)
             {
-                _characterRuntimeData.ShieldAmount = 0f;
-                _characterRuntimeData.ShieldMaxAmount = 0f;
-                _characterRuntimeData.ShieldDuration = 0f;
-                _characterRuntimeData.ShieldRemainingTime = 0f;
+                _characterRuntimeData.ShieldAmount -= damage;
+
+                TriggerShieldFlash();
+
+                if (_characterRuntimeData.ShieldAmount <= 0f)
+                {
+                    _characterRuntimeData.ShieldAmount = 0f;
+                    _characterRuntimeData.ShieldMaxAmount = 0f;
+                    _characterRuntimeData.ShieldDuration = 0f;
+                    _characterRuntimeData.ShieldRemainingTime = 0f;
+                }
+            }
+            else
+            {
+                CurrentHP -= damage;
             }
         }
-        else
+        
+        /// <summary>
+        /// 角色死亡处理
+        /// </summary>
+        private void OnDeath()
         {
-            // 没有护盾，直接扣血
-            _characterRuntimeData.CurrentHP = Mathf.Max(_characterRuntimeData.CurrentHP - damage, 0f);
+            Debug.Log("角色死亡");
+            
+            // 触发死亡事件
+            OnCharacterDeath?.Invoke();
         }
-    }
 
     /// <summary>
     /// 触发护盾闪烁效果
